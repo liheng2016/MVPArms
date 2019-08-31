@@ -1,6 +1,20 @@
+/*
+ * Copyright 2017 JessYan
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.jess.arms.integration;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -9,15 +23,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jess on 12/04/2017 14:41
- * Contact with jess.yan.effort@gmail.com
+ * ================================================
+ * 用于解析 AndroidManifest 中的 Meta 属性
+ * 配合 {@link ConfigModule} 使用
+ * <p>
+ * Created by JessYan on 12/04/2017 14:41
+ * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
+ * <a href="https://github.com/JessYanCoding">Follow me</a>
+ * ================================================
  */
 public final class ManifestParser {
     private static final String MODULE_VALUE = "ConfigModule";
-
     private final Context context;
 
-    public ManifestParser(Application context) {
+    public ManifestParser(Context context) {
         this.context = context;
     }
 

@@ -1,103 +1,89 @@
+/*
+ * Copyright 2017 JessYan
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.jess.arms.base.delegate;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Parcel;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import com.jess.arms.base.App;
-
-import org.simple.eventbus.EventBus;
-
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
+import com.jess.arms.integration.EventBusManager;
+import com.jess.arms.utils.ArmsUtils;
 
 /**
- * Created by jess on 26/04/2017 20:23
- * Contact with jess.yan.effort@gmail.com
+ * ================================================
+ * {@link ActivityDelegate} 默认实现类
+ * <p>
+ * Created by JessYan on 26/04/2017 20:23
+ * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
+ * <a href="https://github.com/JessYanCoding">Follow me</a>
+ * ================================================
  */
-
 public class ActivityDelegateImpl implements ActivityDelegate {
     private Activity mActivity;
     private IActivity iActivity;
-    private Unbinder mUnbinder;
 
-    public ActivityDelegateImpl(Activity activity) {
+    public ActivityDelegateImpl(@NonNull Activity activity) {
         this.mActivity = activity;
         this.iActivity = (IActivity) activity;
     }
 
-
-    public void onCreate(Bundle savedInstanceState) {
-        if (iActivity.useEventBus())//如果要使用eventbus请将此方法返回true
-            EventBus.getDefault().register(mActivity);//注册到事件主线
-        iActivity.setupActivityComponent(((App) mActivity.getApplication()).getAppComponent());//依赖注入
-        try {
-            int layoutResID = iActivity.initView(savedInstanceState);
-            if (layoutResID != 0)//如果initView返回0,框架则不会调用setContentView()
-                mActivity.setContentView(layoutResID);
-        } catch (Exception e) {
-            e.printStackTrace();
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        //如果要使用 EventBus 请将此方法返回 true
+        if (iActivity.useEventBus()){
+            //注册到事件主线
+            EventBusManager.getInstance().register(mActivity);
         }
-        //绑定到butterknife
-        mUnbinder = ButterKnife.bind(mActivity);
-        iActivity.initData(savedInstanceState);
+
+        //这里提供 AppComponent 对象给 BaseActivity 的子类, 用于 Dagger2 的依赖注入
+        iActivity.setupActivityComponent(ArmsUtils.obtainAppComponentFromContext(mActivity));
     }
 
+    @Override
     public void onStart() {
 
     }
 
+    @Override
     public void onResume() {
 
     }
 
+    @Override
     public void onPause() {
 
     }
 
+    @Override
     public void onStop() {
 
     }
 
-    public void onSaveInstanceState(Bundle outState) {
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
 
     }
 
-
+    @Override
     public void onDestroy() {
-        if (mUnbinder != Unbinder.EMPTY) mUnbinder.unbind();
-        if (iActivity.useEventBus())//如果要使用eventbus请将此方法返回true
-            EventBus.getDefault().unregister(mActivity);
-        this.mUnbinder = null;
+        //如果要使用 EventBus 请将此方法返回 true
+        if (iActivity != null && iActivity.useEventBus())
+            EventBusManager.getInstance().unregister(mActivity);
         this.iActivity = null;
         this.mActivity = null;
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-
-    }
-
-    protected ActivityDelegateImpl(Parcel in) {
-        this.mActivity = in.readParcelable(Activity.class.getClassLoader());
-        this.iActivity = in.readParcelable(IActivity.class.getClassLoader());
-        this.mUnbinder = in.readParcelable(Unbinder.class.getClassLoader());
-    }
-
-    public static final Creator<ActivityDelegateImpl> CREATOR = new Creator<ActivityDelegateImpl>() {
-        @Override
-        public ActivityDelegateImpl createFromParcel(Parcel source) {
-            return new ActivityDelegateImpl(source);
-        }
-
-        @Override
-        public ActivityDelegateImpl[] newArray(int size) {
-            return new ActivityDelegateImpl[size];
-        }
-    };
 }

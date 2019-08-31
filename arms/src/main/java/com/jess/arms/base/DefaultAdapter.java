@@ -1,5 +1,21 @@
+/*
+ * Copyright 2017 JessYan
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.jess.arms.base;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +24,13 @@ import android.view.ViewGroup;
 import java.util.List;
 
 /**
+ * ================================================
+ * 基类 {@link RecyclerView.Adapter}, 如果需要实现非常复杂的 {@link RecyclerView}, 请尽量使用其他优秀的三方库
+ * <p>
  * Created by jess on 2015/11/27.
+ * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
+ * <a href="https://github.com/JessYanCoding">Follow me</a>
+ * ================================================
  */
 public abstract class DefaultAdapter<T> extends RecyclerView.Adapter<BaseHolder<T>> {
     protected List<T> mInfos;
@@ -21,17 +43,18 @@ public abstract class DefaultAdapter<T> extends RecyclerView.Adapter<BaseHolder<
     }
 
     /**
-     * 创建Hodler
+     * 创建 {@link BaseHolder}
      *
-     * @param parent
-     * @param viewType
-     * @return
+     * @param parent 父容器
+     * @param viewType 布局类型
+     * @return {@link BaseHolder}
      */
     @Override
     public BaseHolder<T> onCreateViewHolder(ViewGroup parent, final int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(getLayoutId(viewType), parent, false);
         mHolder = getHolder(view, viewType);
-        mHolder.setOnItemClickListener(new BaseHolder.OnViewClickListener() {//设置Item点击事件
+        //设置Item点击事件
+        mHolder.setOnItemClickListener(new BaseHolder.OnViewClickListener() {
             @Override
             public void onViewClick(View view, int position) {
                 if (mOnItemClickListener != null && mInfos.size() > 0) {
@@ -45,62 +68,65 @@ public abstract class DefaultAdapter<T> extends RecyclerView.Adapter<BaseHolder<
     /**
      * 绑定数据
      *
-     * @param holder
-     * @param position
+     * @param holder   {@link BaseHolder}
+     * @param position 在 RecyclerView 中的位置
      */
     @Override
     public void onBindViewHolder(BaseHolder<T> holder, int position) {
         holder.setData(mInfos.get(position), position);
     }
 
-
     /**
-     * 数据的个数
+     * 返回数据总个数
      *
-     * @return
+     * @return 数据总个数
      */
     @Override
     public int getItemCount() {
         return mInfos.size();
     }
 
-
+    /**
+     * 返回数据集合
+     *
+     * @return 数据集合
+     */
     public List<T> getInfos() {
         return mInfos;
     }
 
     /**
-     * 获得item的数据
+     * 获得 RecyclerView 中某个 position 上的 item 数据
      *
-     * @param position
-     * @return
+     * @param position 在 RecyclerView 中的位置
+     * @return 数据
      */
     public T getItem(int position) {
         return mInfos == null ? null : mInfos.get(position);
     }
 
     /**
-     * 子类实现提供holder
+     * 让子类实现用以提供 {@link BaseHolder}
      *
-     * @param v
-     * @param viewType
-     * @return
+     * @param v        用于展示的 {@link View}
+     * @param viewType 布局类型
+     * @return {@link BaseHolder}
      */
-    public abstract BaseHolder<T> getHolder(View v, int viewType);
+    @NonNull
+    public abstract BaseHolder<T> getHolder(@NonNull View v, int viewType);
 
     /**
-     * 提供Item的布局
+     * 提供用于 item 布局的 {@code layoutId}
      *
-     * @param viewType
-     * @return
+     * @param viewType 布局类型
+     * @return 布局 id
      */
     public abstract int getLayoutId(int viewType);
 
-
     /**
-     * 遍历所有hodler,释放他们需要释放的资源
+     * 遍历所有 {@link BaseHolder}, 释放他们需要释放的资源
      *
-     * @param recyclerView
+     * @param recyclerView {@link RecyclerView}
      */
     public static void releaseAllHolder(RecyclerView recyclerView) {
         if (recyclerView == null) return;
@@ -113,11 +139,26 @@ public abstract class DefaultAdapter<T> extends RecyclerView.Adapter<BaseHolder<
         }
     }
 
-
+    /**
+     * item 点击事件
+     * @param <T>
+     */
     public interface OnRecyclerViewItemClickListener<T> {
-        void onItemClick(View view, int viewType, T data, int position);
+
+        /**
+         * item 被点击
+         * @param view 被点击的 {@link View}
+         * @param viewType 布局类型
+         * @param data 数据
+         * @param position 在 RecyclerView 中的位置
+         */
+        void onItemClick(@NonNull View view, int viewType, @NonNull T data, int position);
     }
 
+    /**
+     * 设置 item 点击事件
+     * @param listener
+     */
     public void setOnItemClickListener(OnRecyclerViewItemClickListener listener) {
         this.mOnItemClickListener = listener;
     }
